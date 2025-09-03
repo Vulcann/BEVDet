@@ -4,7 +4,7 @@ ARG CUDA=11.3
 ARG PYTHON_VERSION=3.8
 ARG TORCH_VERSION=1.10.0
 ARG TORCHVISION_VERSION=0.11.0
-ARG ONNXRUNTIME_VERSION=1.8.1
+ARG ONNXRUNTIME_VERSION=1.11.1
 ARG MMCV_VERSION=1.5.3
 ARG PPLCV_VERSION=0.7.0
 ENV FORCE_CUDA="1"
@@ -30,15 +30,28 @@ RUN apt-get clean && apt-get update &&\
     apt-get install -y vim libsm6 libxext6 libxrender-dev libgl1-mesa-glx git wget libssl-dev libopencv-dev libspdlog-dev --no-install-recommends &&\
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL -v -o ~/miniconda.sh -O  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
-    chmod +x ~/miniconda.sh && \
-    ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && \
-    /opt/conda/bin/conda install -y python=${PYTHON_VERSION} conda-build pyyaml numpy ipython cython typing typing_extensions mkl mkl-include ninja && \
-    /opt/conda/bin/conda clean -ya
+# RUN curl -fsSL -v -o ~/miniconda.sh -O  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
+#     chmod +x ~/miniconda.sh && \
+#     ~/miniconda.sh -b -p /opt/conda && \
+#     rm ~/miniconda.sh
+# # 设置 conda 只用 conda-forge
+# RUN echo "channels:\n  - conda-forge\nchannel_priority: strict" > /opt/conda/.condarc && \
+#     /opt/conda/bin/conda config --system --remove channels defaults || true
+# RUN /opt/conda/bin/conda install -y python=${PYTHON_VERSION} conda-build pyyaml numpy ipython cython typing typing_extensions mkl mkl-include ninja && \
+#     /opt/conda/bin/conda clean -ya
+# ### pytorch
+# RUN /opt/conda/bin/conda install pytorch==${TORCH_VERSION} torchvision==${TORCHVISION_VERSION} cudatoolkit=${CUDA} -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/linux-64/
+# ENV PATH /opt/conda/bin:$PATH
 
+RUN curl -fsSL -o ~/mambaforge.sh \
+    https://github.com/conda-forge/miniforge/releases/download/25.3.1-0/Miniforge3-25.3.1-0-Linux-x86_64.sh && \
+    # https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-latest-linux-x86_64.sh && \
+    bash ~/mambaforge.sh -b -p /opt/conda && \
+    rm ~/mambaforge.sh
+RUN /opt/conda/bin/mamba install -y python=${PYTHON_VERSION} conda-build pyyaml numpy ipython cython typing typing_extensions mkl mkl-include ninja && \
+    /opt/conda/bin/conda clean -ya
 ### pytorch
-RUN /opt/conda/bin/conda install pytorch==${TORCH_VERSION} torchvision==${TORCHVISION_VERSION} cudatoolkit=${CUDA} -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/linux-64/
+RUN /opt/conda/bin/mamba install -y pytorch==${TORCH_VERSION} torchvision==${TORCHVISION_VERSION} cudatoolkit=${CUDA} -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/linux-64/
 ENV PATH /opt/conda/bin:$PATH
 
 ### install mmcv-full
