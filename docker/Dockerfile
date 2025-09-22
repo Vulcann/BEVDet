@@ -124,3 +124,5 @@ RUN pip install pycuda \
     tensorboard \
     trimesh==2.35.39 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
+RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
+
