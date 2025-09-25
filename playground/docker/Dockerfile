@@ -60,42 +60,31 @@ RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/
 
 # 安装 mmcv
 # RUN pip uninstall -y mmcv mmcv-full
-# RUN pip index versions mmcv-full
 # RUN pip install mmcv==1.6.1 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.11/index.html # it has mmcv-ext missing issue 
-# 克隆或COPY MMCV源码
+# 克隆MMCV源码
 WORKDIR /opt/workspace/install
 RUN git clone -b v1.6.1 https://github.com/open-mmlab/mmcv.git
 WORKDIR /opt/workspace/install/mmcv
 # 编译安装MMCV，启用C++/CUDA扩展
 ENV MMCV_WITH_OPS=1
 ENV CUDA_HOME=/usr/local/cuda
-# RUN MMCV_WITH_OPS=1 pip install -e . -v
-# 因为在docker build阶段，默认docker无法加载cuda runtime，编译出来的mmcv没有cuda ext。
-# 当前解决方法是在run --gpus_all后再编译，然后docker commit
-# docker ps   # 找到容器 ID
-# docker commit <container_id> bevdet:latest
 
-
-# 修复 mmcv config.py 中 FormatCode 的 verify 参数, 把 MMCV 的 verify=True 自动去掉，避免训练报错
-# RUN sed -i "s/verify=True//g" $(python3 -c "import mmcv; import os; print(os.path.join(os.path.dirname(mmcv.__file__), 'utils/config.py'))")
-
-# 设置工作目录
-# WORKDIR /workspace
-# 复制 BEVDet 项目代码到容器（也可以在运行容器时挂载主机目录）
-# COPY ./BEVDet /workspace/BEVDet
-# WORKDIR /workspace/BEVDet
-
-# 安装 BEVDet 依赖
-# 如果 BEVDet 有 requirements.txt
-# RUN pip install -r BEVDet/requirements.txt
-
-# 安装 BEVDet 开发模式（可选）
-# RUN pip install -e BEVDet
+ENV pip3 install matplot jupyter ipykernel
 
 # 设置 LD_LIBRARY_PATH（确保 PyTorch 动态库可用）
 # ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/conda/lib/python3.8/site-packages/torch/lib
 
-
 # 默认进入 bash
 CMD ["/bin/bash"]
 
+
+# 需要--gpu_all挂载docker后的准备工作:
+# docker ps   # 找到容器 ID
+# docker commit <container_id> bevdet:latest
+# 1)
+# RUN MMCV_WITH_OPS=1 pip install -e . -v
+# 因为在docker build阶段，默认docker无法加载cuda runtime，编译出来的mmcv没有cuda ext。
+# 当前解决方法是在run --gpus_all后再编译，然后docker commit
+# 2)
+# 修复 mmcv config.py 中 FormatCode 的 verify 参数, 把 MMCV 的 verify=True 自动去掉，避免训练报错
+# RUN sed -i "s/verify=True//g" $(python3 -c "import mmcv; import os; print(os.path.join(os.path.dirname(mmcv.__file__), 'utils/config.py'))")
