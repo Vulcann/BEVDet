@@ -233,8 +233,8 @@ test_data_config = dict(
     ann_file=data_root + 'bevdetv3-nuscenes_infos_val.pkl')
 
 data = dict(
-    samples_per_gpu=8,
-    workers_per_gpu=4,
+    samples_per_gpu=1,
+    workers_per_gpu=0,
     train=dict(
         data_root=data_root,
         ann_file=data_root + 'bevdetv3-nuscenes_infos_train.pkl',
@@ -270,4 +270,5 @@ custom_hooks = [
     ),
 ]
 
+# load_from="checkpoints/bevdet-r50.pth"
 # fp16 = dict(loss_scale='dynamic')
