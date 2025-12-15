@@ -88,3 +88,6 @@ CMD ["/bin/bash"]
 # 2)
 # 修复 mmcv config.py 中 FormatCode 的 verify 参数, 把 MMCV 的 verify=True 自动去掉，避免训练报错
 # RUN sed -i "s/verify=True//g" $(python3 -c "import mmcv; import os; print(os.path.join(os.path.dirname(mmcv.__file__), 'utils/config.py'))")
+
+# 启动镜像命令示例：
+# docker run --gpus all --shm-size=16G -it -v $(pwd):/workspaces -v /tmp:/tmp bevdet_cuda11-3_torch1-11:latest bash
